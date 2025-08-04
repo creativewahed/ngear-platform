@@ -1,0 +1,32 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@ngear/shared": ["packages/shared/src/index.ts"],
+      "@ngear/types": ["packages/types/src/index.ts"],
+      "@ngear/database": ["packages/database/src/index.ts"],
+      "@ngear/auth": ["packages/auth/src/index.ts"],
+      "@ngear/config": ["packages/config/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
