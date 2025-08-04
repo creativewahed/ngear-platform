@@ -1,0 +1,65 @@
+{
+  "name": "@ngear/platform",
+  "version": "1.0.0",
+  "description": "NGEAR - Dynamic Multi-Tenant Loyalty, Engagement & Martech Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "dev": "lerna run dev --parallel",
+    "start": "lerna run start --parallel",
+    "clean": "lerna clean && rm -rf node_modules",
+    "bootstrap": "lerna bootstrap",
+    "postinstall": "lerna bootstrap",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "migrate": "lerna run migrate",
+    "seed": "lerna run seed"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "lerna": "^8.0.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.1.0",
+    "concurrently": "^8.2.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creativewahed/ngear-platform.git"
+  },
+  "author": "NGEAR Platform Team",
+  "license": "MIT"
+}

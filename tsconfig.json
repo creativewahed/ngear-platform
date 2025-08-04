@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "@ngear/shared/*": ["packages/shared/src/*"],
+      "@ngear/auth/*": ["services/auth/src/*"],
+      "@ngear/tenant/*": ["services/tenant/src/*"],
+      "@ngear/user/*": ["services/user/src/*"],
+      "@ngear/api-gateway/*": ["services/api-gateway/src/*"],
+      "@ngear/config/*": ["services/config/src/*"],
+      "@ngear/notification/*": ["services/notification/src/*"],
+      "@ngear/admin/*": ["apps/admin/src/*"],
+      "@ngear/client/*": ["apps/client/src/*"]
+    },
+    "types": ["node", "jest"]
+  },
+  "include": [
+    "packages/**/*",
+    "services/**/*",
+    "apps/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}

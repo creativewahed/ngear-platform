@@ -1,0 +1,322 @@
+version: '3.8'
+
+services:
+  # Databases
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ngear_platform
+      POSTGRES_USER: ngear_user
+      POSTGRES_PASSWORD: ngear_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - ngear-network
+
+  mongodb:
+    image: mongo:6.0
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ngear_user
+      MONGO_INITDB_ROOT_PASSWORD: ngear_password
+      MONGO_INITDB_DATABASE: ngear_platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ngear-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ngear-network
+
+  # Message Queue
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    networks:
+      - ngear-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - ngear-network
+
+  # Search Engine
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ngear-network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Authentication Service
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - JWT_EXPIRES_IN=1h
+      - REFRESH_TOKEN_EXPIRES_IN=7d
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Tenant Service
+  tenant-service:
+    build:
+      context: .
+      dockerfile: services/tenant/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PORT=3002
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # User Service
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - PORT=3003
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Wallet Service
+  wallet-service:
+    build:
+      context: .
+      dockerfile: services/wallet/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PORT=3004
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Rule Engine Service
+  rule-engine-service:
+    build:
+      context: .
+      dockerfile: services/rule-engine/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - PORT=3005
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - MONGODB_URL=mongodb://ngear_user:ngear_password@mongodb:27017/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Notification Service
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification/Dockerfile
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=development
+      - PORT=3006
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - EMAIL_SERVICE=smtp
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=your-email@gmail.com
+      - SMTP_PASS=your-app-password
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Analytics Service
+  analytics-service:
+    build:
+      context: .
+      dockerfile: services/analytics/Dockerfile
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=development
+      - PORT=3007
+      - DATABASE_URL=postgresql://ngear_user:ngear_password@postgres:5432/ngear_platform
+      - MONGODB_URL=mongodb://ngear_user:ngear_password@mongodb:27017/ngear_platform
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - postgres
+      - mongodb
+      - elasticsearch
+      - redis
+      - kafka
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Admin Panel
+  admin-panel:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    ports:
+      - "3100:3100"
+    environment:
+      - NODE_ENV=development
+      - PORT=3100
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+  # Client Portal
+  client-portal:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    ports:
+      - "3200:3200"
+    environment:
+      - NODE_ENV=development
+      - PORT=3200
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - ngear-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  elasticsearch_data:
+
+networks:
+  ngear-network:
+    driver: bridge
