@@ -13,7 +13,7 @@ export class EncryptionUtils {
   }
 
   static generateToken(payload: object, secret: string, expiresIn: string | number): string {
-    return jwt.sign(payload, secret, { expiresIn });
+    return jwt.sign(payload, secret, { expiresIn: expiresIn as string });
   }
 
   static verifyToken(token: string, secret: string): any {
