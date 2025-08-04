@@ -1,0 +1,18 @@
+{
+  "name": "ngear-platform",
+  "version": "1.0.0",
+  "description": "NGEAR - Dynamic Multi-Tenant Loyalty, Engagement &amp; Martech Platform - Zero-Code Configurable Solution for Enterprise Clients",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^9.32.0"
+  }
+}
