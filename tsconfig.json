@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ngear/shared/*": ["packages/shared/src/*"],
+      "@ngear/common/*": ["packages/common/src/*"],
+      "@ngear/auth/*": ["services/auth/src/*"],
+      "@ngear/tenant/*": ["services/tenant/src/*"],
+      "@ngear/user/*": ["services/user/src/*"],
+      "@ngear/config/*": ["services/config/src/*"],
+      "@ngear/notification/*": ["services/notification/src/*"],
+      "@ngear/api-gateway/*": ["services/api-gateway/src/*"],
+      "@ngear/client-onboarding/*": ["services/client-onboarding/src/*"],
+      "@ngear/rewards/*": ["services/rewards/src/*"],
+      "@ngear/wallet/*": ["services/wallet/src/*"],
+      "@ngear/redemption/*": ["services/redemption/src/*"],
+      "@ngear/merchandise/*": ["services/merchandise/src/*"],
+      "@ngear/voucher/*": ["services/voucher/src/*"],
+      "@ngear/cashback/*": ["services/cashback/src/*"],
+      "@ngear/analytics/*": ["services/analytics/src/*"],
+      "@ngear/app-builder/*": ["services/app-builder/src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}
