@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "allowJs": false,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": false,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@ngear/shared": ["libs/shared/src/index.ts"],
+      "@ngear/auth": ["libs/auth/src/index.ts"],
+      "@ngear/tenant": ["libs/tenant/src/index.ts"],
+      "@ngear/database": ["libs/database/src/index.ts"],
+      "@ngear/common": ["libs/common/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
