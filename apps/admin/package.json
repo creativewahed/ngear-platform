@@ -1,0 +1,38 @@
+{
+  "name": "@ngear/admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Admin Dashboard for NGEAR Platform",
+  "scripts": {
+    "dev": "next dev -p 3100",
+    "build": "next build",
+    "start": "next start -p 3100",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "@ngear/shared": "^1.0.0",
+    "@reduxjs/toolkit": "^1.9.5",
+    "react-redux": "^8.1.2",
+    "@tailwindcss/forms": "^0.5.4",
+    "axios": "^1.4.0",
+    "react-hook-form": "^7.45.4",
+    "@heroicons/react": "^2.0.18",
+    "clsx": "^2.0.0",
+    "react-query": "^3.39.3"
+  },
+  "devDependencies": {
+    "@types/node": "20.5.0",
+    "@types/react": "18.2.20",
+    "@types/react-dom": "18.2.7",
+    "eslint": "8.47.0",
+    "eslint-config-next": "14.0.0",
+    "typescript": "5.1.6",
+    "tailwindcss": "^3.3.3",
+    "autoprefixer": "^10.4.15",
+    "postcss": "^8.4.28"
+  }
+}

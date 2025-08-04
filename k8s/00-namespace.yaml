@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ngear-platform
+  labels:
+    name: ngear-platform
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ngear-secrets
+  namespace: ngear-platform
+type: Opaque
+data:
+  jwt-secret: ZGV2ZWxvcG1lbnQtc2VjcmV0LWtleS1jaGFuZ2UtaW4tcHJvZHVjdGlvbg== # development-secret-key-change-in-production
+  db-password: bmdlYXJfcGFzc3dvcmQ= # ngear_password
+  redis-password: cmVkaXNfcGFzc3dvcmQ= # redis_password
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ngear-config
+  namespace: ngear-platform
+data:
+  NODE_ENV: "production"
+  JWT_EXPIRES_IN: "15m"
+  JWT_REFRESH_EXPIRES_IN: "7d"
+  DATABASE_URL: "postgresql://ngear_user:ngear_password@postgres-service:5432/ngear_platform"
+  REDIS_URL: "redis://redis-service:6379"
+  CORS_ORIGINS: "https://admin.ngear.com,https://app.ngear.com"

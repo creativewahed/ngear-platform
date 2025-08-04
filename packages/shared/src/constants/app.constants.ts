@@ -1,0 +1,19 @@
+export const APP_CONSTANTS = {
+  JWT: {
+    ACCESS_TOKEN_EXPIRES_IN: '15m',
+    REFRESH_TOKEN_EXPIRES_IN: '7d',
+  },
+  PAGINATION: {
+    DEFAULT_PAGE: 1,
+    DEFAULT_LIMIT: 10,
+    MAX_LIMIT: 100,
+  },
+  TENANT: {
+    SUBDOMAIN_MIN_LENGTH: 3,
+    SUBDOMAIN_MAX_LENGTH: 30,
+  },
+  PASSWORD: {
+    MIN_LENGTH: 8,
+    MAX_LENGTH: 128,
+  },
+} as const;

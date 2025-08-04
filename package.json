@@ -1,0 +1,58 @@
+{
+  "name": "ngear-platform",
+  "version": "1.0.0",
+  "description": "NGEAR - Dynamic Multi-Tenant Loyalty, Engagement & Martech Platform - Zero-Code Configurable Solution for Enterprise Clients",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "dev": "lerna run dev --parallel",
+    "clean": "lerna clean",
+    "start": "lerna run start --parallel",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "k8s:deploy": "kubectl apply -f k8s/",
+    "migrate": "lerna run migrate",
+    "seed": "lerna run seed"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^8.0.0",
+    "lerna": "^6.0.0",
+    "lint-staged": "^13.0.0",
+    "prettier": "^2.0.0",
+    "typescript": "^4.9.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creativewahed/ngear-platform.git"
+  },
+  "keywords": [
+    "loyalty",
+    "engagement",
+    "martech",
+    "multi-tenant",
+    "enterprise",
+    "no-code",
+    "microservices"
+  ],
+  "author": "Creative Wahed",
+  "license": "PROPRIETARY"
+}
