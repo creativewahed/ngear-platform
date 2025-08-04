@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { db } from '@ngear/database';
 
 // Temporary utility functions
 class TempUtils {
@@ -15,22 +14,38 @@ class TempUtils {
 @Injectable()
 export class UserService {
   async getCurrentUser(user: any) {
-    const fullUser = await db.getUserById(user.id);
-    if (!fullUser) {
-      throw new Error('User not found');
-    }
-    const { password, ...sanitizedUser } = fullUser as any;
-    
     return TempUtils.createSuccessResponse({
-      user: sanitizedUser,
+      user: {
+        ...user,
+        message: 'Demo user data - replace with real database query'
+      },
     });
   }
 
   async getUserWallet(user: any) {
-    const wallet = await db.getWalletByUser(user.id);
+    const mockWallet = {
+      id: 'demo-wallet-1',
+      userId: user.id,
+      balances: [
+        { currency: 'POINTS', amount: 1500, lockedAmount: 0 },
+        { currency: 'USD', amount: 25.50, lockedAmount: 5.00 }
+      ],
+      status: 'ACTIVE',
+      transactions: [
+        {
+          id: 'txn-1',
+          type: 'CREDIT',
+          amount: 100,
+          currency: 'POINTS',
+          description: 'Welcome bonus',
+          createdAt: new Date().toISOString()
+        }
+      ]
+    };
     
     return TempUtils.createSuccessResponse({
-      wallet,
+      wallet: mockWallet,
+      message: 'Demo wallet data - replace with real database query'
     });
   }
 }

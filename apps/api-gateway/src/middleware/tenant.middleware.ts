@@ -1,7 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { db } from '@ngear/database';
-import { TenantNotFoundError } from '@ngear/shared';
 
 export interface RequestWithTenant extends Request {
   tenant?: any;
@@ -23,7 +21,7 @@ export class TenantMiddleware implements NestMiddleware {
       }
 
       if (!tenantIdentifier) {
-        tenantIdentifier = 'system'; // Default to system tenant
+        tenantIdentifier = 'demo'; // Default to demo tenant
       }
 
       // Skip tenant resolution for health checks and docs
@@ -31,44 +29,38 @@ export class TenantMiddleware implements NestMiddleware {
         return next();
       }
 
-      // Resolve tenant
-      const tenant = await db.getTenantBySubdomain(tenantIdentifier);
-      
-      if (!tenant) {
-        throw new TenantNotFoundError(`Tenant with identifier '${tenantIdentifier}' not found`);
-      }
-
-      // Check tenant status
-      if (tenant.status !== 'ACTIVE') {
-        return res.status(403).json({
-          success: false,
-          error: {
-            code: 'TENANT_INACTIVE',
-            message: 'Tenant account is not active',
+      // Mock tenant for demo
+      const mockTenant = {
+        id: 'demo-tenant-1',
+        name: 'Demo Company',
+        subdomain: tenantIdentifier,
+        status: 'ACTIVE',
+        plan: 'PROFESSIONAL',
+        settings: {
+          branding: {
+            theme: 'light',
+            primaryColor: '#10B981',
+            secondaryColor: '#059669',
           },
-        });
-      }
+          features: {
+            maxUsers: 100,
+            maxApiCalls: 100000,
+            advancedAnalytics: true,
+            customIntegrations: false,
+          },
+        }
+      };
 
       // Attach tenant to request
-      req.tenant = tenant;
+      req.tenant = mockTenant;
       
       next();
     } catch (error) {
-      if (error instanceof TenantNotFoundError) {
-        return res.status(404).json({
-          success: false,
-          error: {
-            code: 'TENANT_NOT_FOUND',
-            message: error.message,
-          },
-        });
-      }
-
       return res.status(500).json({
         success: false,
         error: {
           code: 'TENANT_RESOLUTION_ERROR',
-          message: 'Failed to resolve tenant',
+          message: 'Failed to resolve tenant (demo mode)',
         },
       });
     }

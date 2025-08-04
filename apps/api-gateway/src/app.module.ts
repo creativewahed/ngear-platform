@@ -10,8 +10,6 @@ import { UserModule } from './routes/user.module';
 import { ProxyModule } from './routes/proxy.module';
 import { HealthModule } from './routes/health.module';
 
-import { TenantMiddleware } from './middleware/tenant.middleware';
-import { AuthGuard } from './middleware/auth.guard';
 import { JwtStrategy } from './middleware/jwt.strategy';
 
 @Module({
@@ -32,9 +30,10 @@ import { JwtStrategy } from './middleware/jwt.strategy';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get('JWT_SECRET', 'default-secret'),
+        secret: config.get('JWT_SECRET', 'test-jwt-secret-key'),
         signOptions: { expiresIn: config.get('JWT_EXPIRY', '24h') },
       }),
+      global: true,
     }),
     PassportModule,
     AuthModule,
@@ -43,6 +42,6 @@ import { JwtStrategy } from './middleware/jwt.strategy';
     ProxyModule,
     HealthModule,
   ],
-  providers: [JwtStrategy, AuthGuard],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

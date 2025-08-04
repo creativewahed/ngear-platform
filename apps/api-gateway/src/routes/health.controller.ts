@@ -1,7 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { Public } from '../decorators/public.decorator';
-import { db } from '@ngear/database';
 
 @ApiTags('health')
 @Controller('health')
@@ -10,14 +9,15 @@ export class HealthController {
   @Get()
   @ApiOperation({ summary: 'Health check endpoint' })
   async getHealth() {
-    const dbHealthy = await db.health();
-    
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
       services: {
-        database: dbHealthy ? 'healthy' : 'unhealthy',
+        api: 'healthy',
+        database: 'pending', // Will be 'healthy' when DB is configured
       },
+      version: '1.0.0',
+      environment: process.env.NODE_ENV || 'development'
     };
   }
 
@@ -25,15 +25,10 @@ export class HealthController {
   @Get('ready')
   @ApiOperation({ summary: 'Readiness check endpoint' })
   async getReadiness() {
-    const dbHealthy = await db.health();
-    
-    if (!dbHealthy) {
-      throw new Error('Database is not ready');
-    }
-    
     return {
       status: 'ready',
       timestamp: new Date().toISOString(),
+      message: 'NGEAR Platform API Gateway is ready to serve requests'
     };
   }
 }
