@@ -1,0 +1,214 @@
+version: '3.8'
+
+services:
+  # Databases
+  postgres:
+    image: postgres:15-alpine
+    container_name: ngear-postgres
+    environment:
+      POSTGRES_DB: ngear_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - ngear-network
+
+  mongodb:
+    image: mongo:7-jammy
+    container_name: ngear-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: ngear_platform
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ngear-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ngear-redis
+    command: redis-server --requirepass password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ngear-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.9.0
+    container_name: ngear-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ngear-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.8-alpine
+    container_name: ngear-clickhouse
+    environment:
+      CLICKHOUSE_DB: ngear_analytics
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - ngear-network
+
+  # Message Queue
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: ngear-kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - ngear-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: ngear-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - ngear-network
+
+  # Services
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    container_name: ngear-auth-service
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: ngear_auth
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+      JWT_SECRET: your-super-secret-jwt-key
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/auth:/app
+      - /app/node_modules
+    networks:
+      - ngear-network
+
+  tenant-service:
+    build:
+      context: .
+      dockerfile: services/tenant/Dockerfile
+    container_name: ngear-tenant-service
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      DB_DATABASE: ngear_tenant
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./services/tenant:/app
+      - /app/node_modules
+    networks:
+      - ngear-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: ngear-api-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      TENANT_SERVICE_URL: http://tenant-service:3002
+      USER_SERVICE_URL: http://user-service:3003
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: password
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - tenant-service
+      - redis
+    volumes:
+      - ./services/api-gateway:/app
+      - /app/node_modules
+    networks:
+      - ngear-network
+
+  # Frontend
+  admin-panel:
+    build:
+      context: .
+      dockerfile: apps/admin-panel/Dockerfile
+    container_name: ngear-admin-panel
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+    ports:
+      - "3100:3000"
+    depends_on:
+      - api-gateway
+    volumes:
+      - ./apps/admin-panel:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ngear-network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  elasticsearch_data:
+  clickhouse_data:
+
+networks:
+  ngear-network:
+    driver: bridge

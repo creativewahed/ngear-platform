@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ngear-development
+  labels:
+    environment: development
+    platform: ngear
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ngear-staging
+  labels:
+    environment: staging
+    platform: ngear
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ngear-production
+  labels:
+    environment: production
+    platform: ngear

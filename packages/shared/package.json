@@ -1,0 +1,35 @@
+{
+  "name": "@ngear/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for NGEAR platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "dependencies": {
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "uuid": "^9.0.0",
+    "bcrypt": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.0",
+    "@types/bcrypt": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/jest": "^29.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  }
+}
