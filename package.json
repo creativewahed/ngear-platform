@@ -1,0 +1,43 @@
+{
+  "name": "ngear-platform",
+  "version": "1.0.0",
+  "description": "NGEAR - Dynamic Multi-Tenant Loyalty, Engagement & Martech Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "lint": "lerna run lint",
+    "dev": "lerna run dev --parallel",
+    "clean": "lerna clean",
+    "bootstrap": "npm ci && lerna exec npm ci",
+    "start": "lerna run start",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "lerna": "^7.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/creativewahed/ngear-platform.git"
+  },
+  "author": "NGEAR Platform Team",
+  "license": "MIT"
+}
