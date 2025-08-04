@@ -25,6 +25,81 @@ A sophisticated, enterprise-grade platform that enables zero-code configuration 
 - **Infrastructure**: Docker, Kubernetes, GitHub Actions
 - **Testing**: Jest, Supertest, Playwright
 
+## 🏛️ Architecture
+
+### System Architecture
+
+The NGEAR Platform follows a modern microservices architecture designed for scalability, maintainability, and enterprise-grade performance.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          Load Balancer                          │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────────────┐
+│                       API Gateway                              │
+│                   (Rate Limiting, Auth)                        │
+└─────────┬───────────────┬───────────────┬─────────────────────┘
+          │               │               │
+┌─────────▼────┐ ┌────────▼────┐ ┌────────▼────┐
+│ Auth Service │ │Tenant Service│ │ User Service│
+│   (Port 3001)│ │ (Port 3002) │ │ (Port 3003)│
+└──────────────┘ └─────────────┘ └─────────────┘
+          │               │               │
+          └───────────────┼───────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────────────────┐
+│                     Data Layer                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │
+│  │ PostgreSQL  │ │  MongoDB    │ │   Redis     │              │
+│  │(Relational) │ │ (Document)  │ │  (Cache)    │              │
+│  └─────────────┘ └─────────────┘ └─────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
+          │
+┌─────────▼────────────────────────────────────────────────────────┐
+│                    Frontend Layer                              │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │
+│  │Platform     │ │Client Portal│ │Mobile Apps  │              │
+│  │Admin        │ │(White-label)│ │(React Native│              │
+│  │(Next.js)    │ │(Next.js)    │ │             │              │
+│  └─────────────┘ └─────────────┘ └─────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Core Components
+
+#### Backend Services
+- **Authentication Service**: JWT-based auth, user management, RBAC
+- **Tenant Service**: Multi-tenant data isolation and management
+- **User Service**: User profiles, roles, and permissions
+- **API Gateway**: Request routing, rate limiting, authentication
+- **Configuration Service**: Dynamic configuration management
+
+#### Databases
+- **PostgreSQL**: Transactional data, user accounts, audit logs
+- **MongoDB**: Flexible schemas, configurations, analytics data
+- **Redis**: Session storage, caching, real-time data
+
+#### Frontend Applications
+- **Platform Admin**: Super admin dashboard for platform operations
+- **Client Portal**: White-label tenant administration interface
+- **Mobile Apps**: Customer-facing applications (React Native)
+
+### Security Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Security Layers                           │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. Network Security    │ HTTPS, VPN, Firewall Rules            │
+│ 2. API Gateway        │ Rate Limiting, IP Filtering            │
+│ 3. Authentication     │ JWT, OAuth2, MFA                      │
+│ 4. Authorization      │ RBAC, ABAC, Resource-level Permissions │
+│ 5. Data Protection    │ Encryption at Rest, Field-level Crypto │
+│ 6. Audit & Monitoring │ Activity Logs, Security Events        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ## 🚀 Quick Start
 
 ### Prerequisites
