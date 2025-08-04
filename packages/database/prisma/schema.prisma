@@ -1,0 +1,322 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tenant model - Multi-tenancy foundation
+model Tenant {
+  id        String      @id @default(cuid())
+  name      String
+  subdomain String      @unique
+  status    TenantStatus @default(ACTIVE)
+  plan      TenantPlan   @default(STARTER)
+  settings  Json         @default("{}")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  users           User[]
+  roles           Role[]
+  permissions     Permission[]
+  apiIntegrations ApiIntegration[]
+  rewardRules     RewardRule[]
+  wallets         Wallet[]
+  transactions    Transaction[]
+  analyticsEvents AnalyticsEvent[]
+
+  @@map("tenants")
+}
+
+enum TenantStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum TenantPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+  CUSTOM
+}
+
+// User model
+model User {
+  id        String     @id @default(cuid())
+  tenantId  String
+  email     String
+  firstName String
+  lastName  String
+  password  String
+  status    UserStatus @default(PENDING)
+  profile   Json       @default("{}")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  // Relations
+  tenant      Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  roles       UserRole[]
+  permissions UserPermission[]
+  wallets     Wallet[]
+  sessions    UserSession[]
+  auditLogs   AuditLog[]
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+// Role-based access control
+model Role {
+  id           String  @id @default(cuid())
+  tenantId     String
+  name         String
+  description  String?
+  isSystemRole Boolean @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@unique([tenantId, name])
+  @@map("roles")
+}
+
+model Permission {
+  id         String  @id @default(cuid())
+  tenantId   String
+  resource   String
+  action     String
+  conditions Json    @default("{}")
+  createdAt  DateTime @default(now())
+
+  // Relations
+  tenant Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  roles  RolePermission[]
+  users  UserPermission[]
+
+  @@unique([tenantId, resource, action])
+  @@map("permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  userId       String
+  permissionId String
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, permissionId])
+  @@map("user_permissions")
+}
+
+// Session management
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// API Integration
+model ApiIntegration {
+  id        String            @id @default(cuid())
+  tenantId  String
+  name      String
+  type      IntegrationType
+  config    Json
+  status    IntegrationStatus @default(INACTIVE)
+  lastSync  DateTime?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("api_integrations")
+}
+
+enum IntegrationType {
+  REST
+  GRAPHQL
+  WEBHOOK
+  DATABASE
+  FILE
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  SYNCING
+}
+
+// Rewards Rule Engine
+model RewardRule {
+  id          String     @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  conditions  Json
+  actions     Json
+  status      RuleStatus @default(DRAFT)
+  priority    Int        @default(0)
+  validFrom   DateTime?
+  validTo     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("reward_rules")
+}
+
+enum RuleStatus {
+  ACTIVE
+  INACTIVE
+  DRAFT
+  EXPIRED
+}
+
+// Wallet Management
+model Wallet {
+  id       String       @id @default(cuid())
+  userId   String
+  tenantId String
+  balances Json         @default("[]")
+  status   WalletStatus @default(ACTIVE)
+  type     WalletType   @default(PREPAID)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@unique([userId, tenantId])
+  @@map("wallets")
+}
+
+enum WalletStatus {
+  ACTIVE
+  FROZEN
+  CLOSED
+}
+
+enum WalletType {
+  PREPAID
+  POSTPAID
+  CREDIT
+}
+
+// Transaction Management
+model Transaction {
+  id          String            @id @default(cuid())
+  walletId    String
+  tenantId    String
+  type        TransactionType
+  amount      Decimal
+  currency    String
+  description String
+  metadata    Json              @default("{}")
+  status      TransactionStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relations
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+  TRANSFER
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Analytics Events
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  tenantId   String
+  userId     String?
+  eventType  String
+  properties Json     @default("{}")
+  timestamp  DateTime @default(now())
+  sessionId  String?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("analytics_events")
+}
+
+// Audit Log
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  tenantId  String
+  action    String
+  resource  String
+  resourceId String?
+  oldValues Json?
+  newValues Json?
+  metadata  Json     @default("{}")
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
